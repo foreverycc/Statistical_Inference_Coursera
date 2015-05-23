@@ -1,0 +1,135 @@
+---
+title: "Statistical Inference Course Project Part 2"
+author: "Chenchen"
+date: "May 21, 2015"
+output: pdf_document
+---
+## Overview
+
+## 1. Load the ToothGrowth data and perform some basic exploratory data analyses 
+```{r, echo=FALSE, message=FALSE}
+library(dplyr)
+library(ggplot2)
+```
+
+```{r}
+# load data
+data(ToothGrowth)
+head(ToothGrowth)
+```
+
+```{r}
+# change dose to factors
+ToothGrowth$dose_fac = factor(ToothGrowth$dose, levels = c(0.5, 1, 2), labels = c("small", "medium", "large"))
+head(ToothGrowth)
+```
+### Exploratory plot 1
+```{r, echo=FALSE, fig.height=4}
+qplot(supp, len, color = supp, geom = c("boxplot"), facets = .~ dose_fac, data = ToothGrowth)
+```
+
+### Exploratory plot 2
+```{r, echo=FALSE}
+qplot(dose_fac, len, color = dose_fac, geom = c("boxplot"), facets = supp ~., data = ToothGrowth)
+```
+
+## 2. Provide a basic summary of the data.
+```{r}
+summary(ToothGrowth)
+```
+
+## 3. Use confidence intervals and/or hypothesis tests to compare tooth growth by supp and dose. 
+### 3.1 The distribution of treatment groups 
+```{r, echo=FALSE}
+# process data
+ToothGrowth = ToothGrowth[, -3] # remove the original dose column
+attach(ToothGrowth)
+```
+```{r}
+tapply(len, list(dose_fac, supp),function(x) length(x)) 
+```
+```{r, echo=FALSE}
+detach(ToothGrowth)
+```
+
+### 3.2 perform t-test of OJ vs VC
+```{r}
+# Subset data by dosage treatment
+ToothGrowth_sm = filter(ToothGrowth, dose_fac == "small")
+ToothGrowth_md = filter(ToothGrowth, dose_fac == "medium")
+ToothGrowth_lg = filter(ToothGrowth, dose_fac == "large")
+```
+
+### 3.2.1 perform t-test of OJ vs VC in small dose group only
+```{r}
+t_test_sm = t.test(ToothGrowth_sm$len ~ ToothGrowth_sm$supp)
+# confidence interval
+t_test_sm$conf.int[1:2]
+# p value
+t_test_sm$p.value
+```
+
+### 3.2.2 perform t-test of OJ vs VC in medium dose group only
+```{r}
+t_test_md = t.test(ToothGrowth_md$len ~ ToothGrowth_md$supp)
+# confidence interval
+t_test_md$conf.int[1:2]
+# p value
+t_test_md$p.value
+```
+
+### 3.2.3 perform t-test of OJ vs VC in large dose group only
+```{r}
+t_test_lg = t.test(ToothGrowth_lg$len ~ ToothGrowth_lg$supp)
+# confidence interval
+t_test_lg$conf.int[1:2]
+# p value
+t_test_lg$p.value
+```
+
+### 3.3 perform t-test of small dosage (small) vs large dosage (large))
+```{r}
+# For convenience, we only compare small vs large, while drop medium dosages (medium)
+ToothGrowth = filter(ToothGrowth, dose_fac != "medium")
+ToothGrowth$dose_fac = factor(ToothGrowth$dose_fac)
+# Subset data by delivery method
+ToothGrowth_OJ = filter(ToothGrowth, supp == "OJ")
+ToothGrowth_VC = filter(ToothGrowth, supp == "VC")
+```
+
+### 3.3.1 perform t-test of dose_sm vs dose_lg in OJ group only
+```{r}
+t_test_OJ = t.test(ToothGrowth_OJ$len ~ ToothGrowth_OJ$dose_fac)
+# confidence interval
+t_test_OJ$conf.int[1:2]
+# p value
+t_test_OJ$p.value
+```
+
+### 3.3.2 perform t-test of dose_sm vs dose_lg in VC group only
+```{r}
+t_test_VC = t.test(ToothGrowth_VC$len ~ ToothGrowth_VC$dose_fac)
+# confidence interval
+t_test_VC$conf.int[1:2]
+# p value
+t_test_VC$p.value
+```
+
+## 4. State your conclusions and the assumptions needed for your conclusions.
+
+### 4.1 conclusions
+#### 4.1.1 comparing delivery methods
+- When treated with small and medium amount of Vitamin C, orange juice increases more tooth length than ascorbic acid.
+- When treated with large amount of Vitamin C, there's no significant difference between the two delivery methods in influencing tooth length.
+
+#### 4.1.2 comparing dose amount
+- For both methods, large amount treatment will increase tooth length than small amount
+
+### 4.2 Assumptions
+- These tooth length are approximately normally distributed
+- These samples are independent (unpaired)
+
+
+
+
+

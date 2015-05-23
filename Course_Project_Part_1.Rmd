@@ -1,0 +1,71 @@
+---
+title: "Statistical Inference Course Project Part 1"
+author: "Chenchen"
+date: "May 21, 2015"
+output: pdf_document
+---
+
+## Overview
+In this project we will investigate the exponential distribution in R and compare it with the Central Limit Theorem. 
+
+## Simulations
+The exponential distribution can be simulated in R with rexp(n, lambda) where lambda is the rate parameter. The mean of exponential distribution is 1/lambda and the standard deviation is also 1/lambda. Set lambda = 0.2 for all of the simulations. We will investigate the distribution of averages of 40 exponentials. We will perform simulation for 1000 times. 
+
+```{r}
+set.seed(123)
+n_exp = 40 # set the number of random number of exponential distribution
+n_sim = 1000 # set the number of simulation
+lambda = 0.2 # set the lambda in exponential distribution
+
+sim_means = NULL
+for (i in 1: n_sim) {
+        sim_means = c(sim_means, mean(rexp(n_exp, lambda)))
+}
+```
+
+## Sample Mean versus Theoretical Mean
+According to Central Limit Theorem, the expectation of the mean of simulated exponential distribution is 1/lambda. 
+
+```{r}
+sample_mean = mean(sim_means)
+theoretical_mean = 1/lambda
+means_comp = c(sample_mean, theoretical_mean)
+names(means_comp) = c("sample mean", "theoretical mean")
+print (means_comp)
+```
+
+```{r, echo=FALSE, fig.height=4}
+hist(sim_means, xlab = "mean of simulated exponential distribution",
+     main = "Histogram of simulated exponential distribution means")
+abline(v = sample_mean, lwd = 2, col = "blue")
+abline(v = 1/lambda, lwd = 2, col = "red")
+legend("topright", legend = c("simulation mean", "theoretical mean"), 
+       col = c("blue", "red"), lty = 1)
+```
+
+From the above figure, we can see that the sample mean is pretty similar with the theoretical mean.
+
+## Sample Variance versus Theoretical Variance
+According to Central Limit Theorem, the variation of the mean of simulated exponential distribution is (1/lambda ^2)/n
+
+```{r}
+sample_var = var(sim_means)
+theoretical_var = (1/lambda ^ 2) / n_exp
+var_comp = c(sample_var, theoretical_var)
+names(var_comp) = c("sample variance", "theoretical variance")
+print (var_comp)
+```
+
+## Distribution
+According to Cental Limit Theorem, if we scale the simulated means, the distribution would approximate a standard normal distribution.
+
+```{r, echo=FALSE, fig.height=4}
+scale_sim_means = scale(sim_means) # scale the simulated means
+hist(scale_sim_means, xlab = "scaled mean of simulated exponential distribution", main = "Histogram of scaled simulated exponential distribution means", xlim = c(-3, 3), ylim = c(0, 0.5), prob = T)
+lines(density(scale_sim_means), lwd = 2, col = "blue")
+x = seq(-3,3, 0.001)
+lines(x, dnorm(x = x, mean = 0, sd = 1), col = "red")
+legend("topright", legend = c("simulation distribution", "theoretical distribution"), col = c("blue", "red"), lty = 1)
+```
+
+From the above figure, we can see that the scaled simulation distribution is pretty similar to the theoretical distribution.
